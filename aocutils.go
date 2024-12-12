@@ -199,6 +199,17 @@ func InBounds[T any](grid Grid[T], coord Coordinate) bool {
 	return coord.y > 0 && coord.x > 0 && coord.y < len(grid) && coord.x < len(grid[0])
 }
 
+// PrintGrid prints every element in a given grid separated by a given delimeter.
+func PrintGrid[T any](grid Grid[T], delim string) {
+	for _, row := range grid {
+		print(delim)
+		for _, col := range row {
+			print(col, delim)
+		}
+		println()
+	}
+}
+
 // Trees
 
 type TreeNode[T any] struct {
