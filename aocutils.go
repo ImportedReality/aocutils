@@ -2,6 +2,7 @@ package aocutils
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -160,28 +161,29 @@ func Insert[T any](slice []T, element T, index int) []T {
 // A type representing a slice of type T.
 type Stack[T any] []T
 
-// Push adds an element to the end of a stack of type T.
-func (s Stack[T]) Push(element T) {
-	s = append(s, element)
+// Push adds the given elements to the end of a stack of type T.
+func (s Stack[T]) Push(elements ...T) Stack[T] {
+	return append(s, elements...)
 }
 
 // Pop removes an element from the end of a stack of type T.
 // It returns the removed element.
-func (s Stack[T]) Pop() T {
-	element, s := s[len(s)-1], s[:len(s)-1]
-	return element
+func (s Stack[T]) Pop() (Stack[T], T) {
+	if len(s) == 0 {
+		return s, *new(T)
+	}
+	return s[:len(s)-1], s[len(s)-1]
 }
 
 // Unshift adds an element to the beginning of a stack of type T.
-func (s Stack[T]) Unshift(element T) {
-	s = append([]T{element}, s...)
+func (s Stack[T]) Unshift(element T) Stack[T] {
+	return append([]T{element}, s...)
 }
 
 // Shift removes an element from the beginning of a stack of type T.
 // It returns the removed element.
-func (s Stack[T]) Shift() T {
-	element, s := s[0], s[1:]
-	return element
+func (s Stack[T]) Shift() (Stack[T], T) {
+	return s[1:], s[0]
 }
 
 // Grid Utils
@@ -190,21 +192,45 @@ func (s Stack[T]) Shift() T {
 type Grid[T any] [][]T
 
 // A type representing an X and Y coordinate pair
-type Coordinate struct{ x, y int }
+type Coordinate struct{ X, Y int }
+
+type Direction int
+
+const (
+	N Direction = iota
+	NE
+	E
+	SE
+	S
+	SW
+	W
+	NW
+)
+
+var Offsets = map[Direction]Coordinate{
+	N:  {X: 0, Y: -1},
+	NE: {X: 1, Y: -1},
+	E:  {X: 1, Y: 0},
+	SE: {X: 1, Y: 1},
+	S:  {X: 0, Y: 1},
+	SW: {X: -1, Y: 1},
+	W:  {X: -1, Y: 0},
+	NW: {X: -1, Y: -1},
+}
 
 // InBounds checks if the given coordinates are in the bounds of a given grid.
 // The grid is assumed to be square
 // It returns a bool.
 func InBounds[T any](grid Grid[T], coord Coordinate) bool {
-	return coord.y > 0 && coord.x > 0 && coord.y < len(grid) && coord.x < len(grid[0])
+	return coord.Y >= 0 && coord.X >= 0 && coord.Y <= len(grid)-1 && coord.X <= len(grid[0])-1
 }
 
 // PrintGrid prints every element in a given grid separated by a given delimeter.
 func PrintGrid[T any](grid Grid[T], delim string) {
 	for _, row := range grid {
-		print(delim)
+		fmt.Print(delim)
 		for _, col := range row {
-			print(col, delim)
+			fmt.Print(col, delim)
 		}
 		println()
 	}
